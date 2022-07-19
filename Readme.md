@@ -1,7 +1,15 @@
-# IoW 2022 R GeoWorkshop <img src="img/lynker.png" width=160 height = 100 align="right" />
+<p align="center">
+  <img src="img/iow-logo.png" width="25%" />
+  &nbsp; &nbsp; &nbsp; &nbsp;
+  <img src="img/lynker.png" width="25%" /> 
+</p>
+
+<hr>
 
 
-Material for [IoW R workshop](https://internetofwater.org/events/working-with-geospatial-hydrologic-data-using-web-services-r/) on Working with Geospatial Hydrologic Data Using Web Services in R can be found [here](https://mikejohnson51.github.io/IOW2022_R/slides.html).
+## Basic Overview
+
+Material for the [IoW R workshop](https://internetofwater.org/events/working-with-geospatial-hydrologic-data-using-web-services-r/) on Working with Geospatial Hydrologic Data Using Web Services in R can be found [here](https://mikejohnson51.github.io/IOW2022_R/slides.html).
 
   - Mike Johnson, Lynker
   - Taher Chegini, University of Houston

@@ -1,6 +1,5 @@
 ---
-title: Working with Geospatial Hydrologic Data Using Web Services
-subtitle: Working with R
+title: Working with Geospatial Hydrologic Data Using Web Services (R)
 author: 
   - Mike Johnson, Lynker
   - Taher Chegini, University of Houston

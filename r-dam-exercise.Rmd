@@ -31,15 +31,16 @@ output:
   comment = "#>",
   out.width = "100%"
 )
+
+library(gridExtra)
+library(DT)
 ```
 
-```{r, echo=FALSE, eval = FALSE}
-htmltools::img(src = knitr::image_uri('img/lynker.png'), 
-               alt = 'logo', 
-               style = 'position:absolute; top:0; right:0; padding:10px;')
-```
 
+> This working example is part 4 of the Internet of Water Workshop on Geospatial data and web services in R. The first three sections can be found [here](https://mikejohnson51.github.io/IOW2022_R/slides.html).
 # Introduction
+
+This working example is part 4 of the Internet of Water Workshop on Geospatial data and web services in R. The first three sections can be found [here](https://mikejohnson51.github.io/IOW2022_R/slides.html).
 
 The primary goal of this hands-on tutorial is to introduce a handful of geospatial web services for conducting scientific studies. For this purpose, we're going to take a look at the effects of building dams on stream flow. Here are some example peer-reviewed papers on this topic.
 
@@ -64,6 +65,7 @@ library(nhdplusTools)   # Data access
 We set the area of interest (AOI) for this study to Texas and study dams that have been built in the 1995-2005 period. 
 
 ```{r}
+# Define AOI
 texas = aoi_get(state = "TX")
 
 # Instantiate plot
@@ -77,7 +79,8 @@ We use the National Water Information System (NWIS) service to check stream flow
 
   
 ```{r}
-# Query data
+# Query NWIS site data
+
 nwis = whatNWISdata(
   # State to search
   stateCd = "TX",
@@ -132,7 +135,6 @@ ggplot() +
 Next, we need to retrieve the dams in Texas that have been built between 1995 and 2005. For this exercise, their is not a function based web service for getting the latest (2019) National Inventory of Dams (NID) data from the US Army Corps. However, the USACE exposes the data as a CSV file online meaning we can read it directly into our work session:
 
 ```{r}
-# Read from USACE NID dataset
 dams = 
   # Read data from URL
   read.csv('https://nid.usace.army.mil/api/nation/csv', skip = 1) %>%
@@ -167,7 +169,9 @@ As is evident from the plot above, there are many gauge locations that don't hav
 ggplot(data = sites, aes(x = drain_sqkm)) +
   # Generate a histogram
   geom_histogram() + 
+  # Add vertical (v) line
   geom_vline(xintercept = 10000, color = "red") +
+  # Add labels
   labs(title = "Drainage Area (km2) Histogram")
 ```
 
@@ -175,13 +179,24 @@ We see that most stations have a drainage area of less than 10,000 km^2^. Now, w
 
 ```{r}
 distance_filter = function(dams, gages, dist_m){
+  # calculate the pairwise distance between gages and dams
+  # Find boolean condition if distance is greater then dist_m
+  # Extract the row/col indexes
   map = which(st_distance(dams, gages) < units::as_units(dist_m, "m"), arr.ind = TRUE) 
-  map = data.frame(NID = dams$nidid[map[,1]], NWIS = gages$staid[map[,2]])
+  
+  # use the index values to extract IDs
+  map = data.frame(NID = dams$nidid[map[,1]], 
+                   NWIS = gages$staid[map[,2]])
+  
+  # use IDs to filter dams and gages
   return(list(dams = filter(dams, nidid %in% map$NID),
               sites = filter(gages, staid %in% map$NWIS)))
 }
 
+# Execute function to get a list of features within proximety of 10000m
 proxy = distance_filter(dams, gages = sites, dist_m = 10000)
+
+# How many of each feature type?
 lengths(proxy)
 ```
 
@@ -245,7 +260,7 @@ crosswalk = inner_join(crosswalk, proxy$sites, by = "staid")
 crosswalk = select(crosswalk, c("staid", dam_comid, nidid, storage, height, name,  completed,  begin_date, end_date))
 
 # View
-DT::datatable(crosswalk)
+datatable(crosswalk)
 ```
 # Plot/Evaluate
 
@@ -254,60 +269,122 @@ Upon finalizing the stations that satisfy our criteria, we use NWIS to obtain th
 We can use this data to make a series of plots showing the annual mean stream flow values overlaid with the years a dam was constructed. We can do this iteritively for each identified gauge:
 
 ```{r}
+# Empty list to add plots to...
 p = list()
 
+# For each unique site ID
 for(i in unique(crosswalk$staid)){
   
+  # year of completion minus 1
   years_of_construction = filter(crosswalk, staid == i)$completed - 1
+  # Find the 15 year range 
   y = range(years_of_construction - 15, years_of_construction + 15)
   
+  # Extact complete NWIS record for streamflow at each site
   flows = readNWISdv(site = i, parameterCd  = "00060") |> 
+    # Rename columns
     renameNWISColumns() |> 
+    # Strip the Year from each data and group by that year
     group_by(year = as.numeric(format(Date, '%Y'))) |> 
+    # Determine the mean flow in each year and convert to CMS
     summarise(meanQ = mean(Flow, na.rm = TRUE) * 0.028316846592,
+              # Count number of observations in each year
               n = n()) |> 
+    # Only keep data for years within our range and that have 300+ records
     filter(between(year, min(y), max(y)), n > 300) |> 
+    # Join to all years (add NAs for years not observered or cut)
     right_join(data.frame(year = min(y):max(y)), by = "year")
   
-  p[[length(p)  + 1]] = ggplot(data = flows) +
+  # make plot and add to p list
+  p[[length(p)  + 1]] = 
+    ggplot(data = flows) +
     geom_line(aes(x = year, y = meanQ )) + 
     geom_vline(xintercept = years_of_construction, color  = "red") + 
     labs(title = i, x = "Year", y = "Flow (cfs)")
 }
 
-
-
-library(gridExtra)
+# Combine and render plots:
 do.call("grid.arrange", c(p, ncol = 2))  
 ```
-We can see that based on the available data and visual inspection, the first station shows a noticeable difference before and after the dam construction. Next we take a closer look at this station, USGS-07312200 to find if 
+# Influence of Land cover
+
+We can see that based on the available data and visual inspection, the first station shows a noticeable difference before and after the dam construction. Next we take a closer look at this station, USGS-07312200 to find if there is a visible reason for why these dams were added in the land cover.
+
+To do this we identify the up and downstream networks (dataRetrival), and find the associated catchments (nhdplusTools)
 
 ```{r}
+# Use NLDI to find up and down stream flowline of the dam COMID within 30 km
 region = findNLDI(comid = 13730353, nav = c("UT", "DD"), distance_km = 30)
 
+# Used the returned data to extract catchment realizations of the NHDPlus
 catchments = get_nhdplus(comid = c(region$DD_flowlines$nhdplus_comid,
                                    region$UT_flowlines$nhdplus_comid),
                                    realization = "catchment")
 
 ```
 
-
+We can then use `dap` (opendap.catalog) to subset a cloud native TIF file with `vsicurl`, and plot the returned data:
 
 ```{r}
+# Subset cloud-native TIF file of NLCD
+
 lc = dap("/vsicurl/https://storage.googleapis.com/feddata-r/nlcd/2019_Land_Cover_L48.tif", 
          AOI = catchments)
 
+# Transform catchments to the projection of the NLCD
+catchments_proj = st_transform(catchments, crs(lc))
 
-masked_data = mask(lc, project(vect(st_union(catchments)), crs(lc)))
+# Mask land cover data with the catchments
+masked_data = mask(lc, vect(catchments_proj))
 
+# Plot!
 {
   plot(masked_data)
-  plot(dams$geometry, add = TRUE, pch = 16)
-  plot(st_transform(catchments$geometry, crs(lc)), add = TRUE)
+  plot(dams$geometry, add = TRUE, pch = 25, bg = "red")
+  plot(catchments_proj$geometry, add = TRUE)
 }
-
-freq(masked_data) %>%
-  arrange(-count)  %>%
-  mutate(sqkm = count * prod(res(lc)) /1e6) %>%
-  DT::datatable()
 ```
+
+Last, we might be interested in the percent of land cover up and down stream of the dam(s). We can find these with the data already queried:
+
+```{r}
+# Downstream catchments
+ds_cat = filter(catchments_proj, 
+                featureid %in% region$DD_flowlines$nhdplus_comid)
+
+# Mask Land cover to Downstream catchments, and compute land cover frequency
+ds_frac = freq(mask(lc, vect(ds_cat))) %>%
+  arrange(-count)  %>%
+  select(value, count) %>%
+  mutate(DD_sqkm = count * prod(res(lc)) / 1e6, 
+         DD_percentage = round(DD_sqkm / sum(DD_sqkm), 2),
+         DD_sqkm = NULL, count = NULL)
+
+# Upstream catchments
+us_cat = filter(catchments_proj, 
+                featureid %in% region$UT_flowlines$nhdplus_comid)
+
+# Mask Land cover to Upstream catchments, and compute land cover frequency
+us_frac = freq(mask(lc, vect(us_cat))) %>%
+  arrange(-count)  %>%
+  select(value, count) %>%
+  mutate(UT_sqkm = count * prod(res(lc)) / 1e6, 
+         UT_percentage = round(UT_sqkm / sum(UT_sqkm), 2),
+         UT_sqkm = NULL, count = NULL,)
+
+# View:
+full_join(ds_frac, us_frac) %>% 
+  mutate(`delta(DD - UT)` = DD_percentage - UT_percentage) %>%
+  filter(`delta(DD - UT)` != 0) %>%
+  datatable() %>%
+  formatStyle(
+    'delta(DD - UT)',
+    color = styleInterval(0, c('red', 'green'))
+  )
+```
+
+Notably we see that the upstream area has significantly more grassland then downstream, while the downstream catchments have significantly more cropland. The implications is that these dams were constructed to support the transition of grassland to agricultural land. 
+
+# Conclusions
+
+While a small example, this workflow shows how the details learned today can be pieced together to answer complex and meaningful questions in a programmatic, reproducible, and lightweight way.
