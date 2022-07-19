@@ -1,7 +1,10 @@
 ---
 title: Working with Geospatial Hydrologic Data Using Web Services
 subtitle: Working with R
-author: Mike Johnson^[Lynker, NOAA-Affiliate, fa]
+author: 
+  - Mike Johnson, Lynker
+  - Taher Chegini, University of Houston
+  - Marc Weber, US Environmental Protection Agency
 output:
   html_document:
     toc: true
@@ -239,6 +242,8 @@ With a strong grasp on the basic spatial libraries for reading, writing, and man
 
 AOI is _NOT_ on CRAN but provides interfaces for geocoding and retrieving spatial boundaries (e.g state, county, and country). When working with web-based,  subsetting services, the ability to quickly define common features is really convenient.
 
+We'll see through these examples that the concept of AOI is key to requesting subsets of data. Further well see that a reproducable way of generating these is a quickway to make the sytanx of disparate packages more aligned.
+
 ### Basic Useage:
 
 ```{r}
@@ -442,13 +447,15 @@ One of the biggest challenges with Earth System and spatial research is extracti
 
 Services exist to make data more readily available over the web but introduce new challenges of identifying subsets, working across a wide array of standards (e.g. non-standards), all without alleviating the challenge of finding resources.
 
-In light of this, [opendap.catalog](https://mikejohnson51.github.io/opendap.catalog/) provides three primary services.
+In light of this, [opendap.catalog](https://mikejohnson51.github.io/opendap.catalog/) provides 4 primary services.
 
+### Basic Usage:
 
-### 1. Generalized space (XY) and Time (T) subsets for remote and local NetCDF data with dap()
+#### Generalized space (XY) and Time (T) subsets for remote and local NetCDF data with dap()
  - Handles data streaming, projection, and cropping. Soon to come is masking capabilities.
 
 ```{r}
+# remotes::install_github("mikejohnson51/opendap.catalog")
 library(opendap.catalog)
 
 AOI = aoi_get(state = "FL")
@@ -473,7 +480,7 @@ lai = dap('/Users/mjohnson/mosaic_lai_glass_1.tif',
 
 ```
 
-### 2. A catalog of `r nrow(opendap.catalog::params)` web resources (as of 06/2022)
+#### A catalog of `r nrow(opendap.catalog::params)` web resources (as of 06/2022)
 
 ```{r}
 glimpse(opendap.catalog::params)
@@ -491,7 +498,7 @@ search("daily precipitation") |>
 (s = search('gridmet daily precipitation'))
 ```
 
-### (3) The ability to pass catalog elements to the generalized toolsets:
+#### Pass catalog elements to the generalized toolsets:
 
 Now that you know the precipitation product you want, lets say you want to study the rainfall seen during Hurricane Harvey over Texas and Louisiana:
 
@@ -513,7 +520,7 @@ harvey_counties = aoi_get(state = c("TX", "LA"), county = "all")
 }
 ```
 
-### (4) Tiled data streams
+#### Tiled data streams
 
 One of the key features of `dap` is the capacity to make requests over tiled resources. Some resources (like MODIS) and tiled in space, and some (like MACA, and LOCA) are tiled in time. Below we see an example of how a single `dap` call can consolidate a request that covers multiple spatial tiles:
 
@@ -535,7 +542,7 @@ Often getting spatial data is not the end goal and in many cases producing area 
 [`zonal`](https://github.com/NOAA-OWP/zonal) is a package that wraps the excellent [`exactextractr`](https://isciences.gitlab.io/exactextractr/) package with some added performance and convenience for these types of tasks. To use zonal, you must supply a raster dataset (SpatRaster), a geometry set to summarize over, and a summary functions (similar to `nwmTools::aggregate_*`). Lastly, you must provide the column with a unique identifier for each polygon object, and whether the summary data should be joined (`join  = TRUE`) to the original summary data.
 
 ```{r}
-#remotes::install_github("NOAA-OWP/zonal")
+# remotes::install_github("NOAA-OWP/zonal")
 library(zonal)
 
 # Summary options
@@ -641,7 +648,7 @@ ggplot(transect, aes(x = location, y = COP30_hh)) +
 ```
 
 
-## Vector 
+## Access Vector Data
 
 ## Basic Usgage: TIGER lines 
 Since the base data reader of sf is GDAL the vsi capabilities also apply to vector data! The added challenge typically is that vector data (especially shapefile data) is generally stored in zip files. This adds an extra layer of complexity when remotely reading these datasets. 

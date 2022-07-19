@@ -1,13 +1,24 @@
 ---
 title: Working with Geospatial Hydrologic Data Using Web Services
-subtitle: Impact of Dams on Streamflow - R
-author: Mike Johnson^[Lynker, NOAA-Affiliate, mike.johnson@noaa.gov]
+description: | 
+  Impact of Dams on Streamflow - R
+author:
+  - name: "Mike Johnson"
+    url: https://github.com/mikejohnson51
+    affiliation: Lynker
+    affiliation_url: https://www.lynker.com/solutions/water-environmental-resources/
+  - name: "Taher Chegini"
+    url: https://cheginit.github.io/
+    affiliation: University of Houston
+    affiliation_url: https://www.lynker.com/solutions/water-environmental-resources/
+  - name: "Marc Weber"
+    url: https://mhweber.github.io
+    affiliation: US Environmental Protection Agency
 output:
-  html_document:
+  distill::distill_article:
     toc: true
-    toc_float: TRUE
-    highlight: tango
-    theme: cerulean
+    toc_depth: 2
+    toc_float: true
 ---
 
 
