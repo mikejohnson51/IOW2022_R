@@ -56,7 +56,7 @@ Install guides can be found [here](https://mikejohnson51.github.io/spds/assignme
  
  - `install.packages(name)` can install packages from [CRAN](https://cran.r-project.org/)
  
- - `remotes::install_github("user/repo")` can install packages from  Github that are not released to CRAN (development versions, personal repos, ect.)
+ - `remotes::install_github("user/repo")` can install packages from  Github that are not released to CRAN (development versions, personal repos, etc.)
  
  - Packages are loaded (attached) into a working environment by calling `library(name)`
  
@@ -76,7 +76,7 @@ Install guides can be found [here](https://mikejohnson51.github.io/spds/assignme
 ?sf::read_sf
 ```
  
- - Hashtags (`#`) inserted before lines of code are comments, they are present for human use not machine interpetation
+ - Hashtags (`#`) inserted before lines of code are comments, they are present for human use not machine interpretation
  
 ```{r}
 # this is a comment, below is code
@@ -89,7 +89,7 @@ We are going to discuss spatial data for hydrology in two contexts.
 
 - "Vector" data are comprised of points, lines, and polygons that represent discrete spatial entities, such as a river, watershed, or stream gauge.
 
-- "Raster" data divides spaces into rectilinear cells (pixels) to represent spatially continuous phenomena, such as elevation or the weather. The cell size (or resoltion) defines the fidelty of the data.
+- "Raster" data divides spaces into rectilinear cells (pixels) to represent spatially continuous phenomena, such as elevation or the weather. The cell size (or resolution) defines the fidelity of the data.
 
 ```{r, fig.align='center', echo = FALSE, out.width="75%" }
 knitr::include_graphics("img/09-vec-raster.jpg")
@@ -123,7 +123,7 @@ knitr::include_graphics("img/09-sf-model.png")
 
 In R, the [`sf` package](https://cran.r-project.org/web/packages/sf/index.html) provides "_support for simple features, a standardized way to encode spatial vector data.... [and] Binds to 'GDAL' for reading and writing data, to 'GEOS' for geometrical operations, and to 'PROJ' for projection conversions and datum transformations._" 
 
-Therefore when using R, you are using an interface to the core community standards, softwares, and practices (this is no exclusive to R). TO highlight this we can install (do this once) and attach `sf` to view the external dependencies versions of the libraries linked to `sf`. 
+Therefore when using R, you are using an interface to the core community standards, software, and practices (this is no exclusive to R). TO highlight this we can install (do this once) and attach `sf` to view the external dependencies versions of the libraries linked to `sf`. 
 
 ```{r}
 # install.packages("sf")
@@ -138,7 +138,7 @@ The bindings to these lower-level C libraries, and, the larger `sf` ecosystem in
 knitr::include_graphics("img/09-sf-depends.png")
 ```
 
-What is novel about the `sf` implementation in the R ecosystem is the way in which the authors built on the list structure in R to store simple feature geometries (sfg) as part of a larger data.frame using a simple feature geometry list-column (sfg). The collection of attribute and spatial information define a simple feature that can be operated on in both table (SQL) and spatial (GEOS, ect) contexts. Not only does this allow us to make the most use of the growing spatial community but _also_ of the growing data science community (see `ggplot`, `dplyr`, `data.table`, `dbplyr`, `arrow`, ect.)
+What is novel about the `sf` implementation in the R ecosystem is the way in which the authors built on the list structure in R to store simple feature geometries (sfg) as part of a larger data.frame using a simple feature geometry list-column (sfg). The collection of attribute and spatial information define a simple feature that can be operated on in both table (SQL) and spatial (GEOS, etc) contexts. Not only does this allow us to make the most use of the growing spatial community but _also_ of the growing data science community (see `ggplot`, `dplyr`, `data.table`, `dbplyr`, `arrow`, etc.)
 
 In practice, an `sf` object in R looks like the following:
 
@@ -319,9 +319,9 @@ The USGS supported [dataRetrival](https://usgs-r.github.io/dataRetrieval/) packa
 #install.package('dataRetrieval')
 library(dataRetrieval)
 
-# Supply gage ids from Boston example
+# Supply gauge ids from Boston example
 # Parameter codes can be found with (`dataRetrieval::parameterCdFile`)
-# "00060" is streamflow
+# "00060" is stream flow
 
 flows = readNWISdv(site = boston$gages$site_no, parameterCd = "00060") |> 
   renameNWISColumns()
@@ -374,9 +374,9 @@ mapview(nldi)
 
 ## nwmTools
 
-While dataRetrival provides retrival functions for observed data, there is an increasing amount of simulated data available for use. Once example is the 3 retrospective simulations of the [National Water Model](https://water.noaa.gov/about/nwm). This data certainly falls under the umbrella of ["big data"](https://www.cuahsi.org/about/news/big-data-dreaming-a-42-year-conus-hydrologic-retrospective) and can be difficult to work with given each hourly file (for up to 42 years!) is stored in seperate, cloud based files.
+While dataRetrival provides retrieval functions for observed data, there is an increasing amount of simulated data available for use. Once example is the 3 retrospective simulations of the [National Water Model](https://water.noaa.gov/about/nwm). This data certainly falls under the umbrella of ["big data"](https://www.cuahsi.org/about/news/big-data-dreaming-a-42-year-conus-hydrologic-retrospective) and can be difficult to work with given each hourly file (for up to 42 years!) is stored in separate, cloud based files.
 
-[`nwmTools`](https://mikejohnson51.github.io/nwmTools/) provides retrieval functions for these retrospective streamflow data from the NOAA National Water Model reanalysis products:
+[`nwmTools`](https://mikejohnson51.github.io/nwmTools/) provides retrieval functions for these retrospective stream flow data from the NOAA National Water Model reanalysis products:
 
 ### Basic Use: Retrival
 
@@ -481,7 +481,7 @@ glimpse(opendap.catalog::params)
 
 With 14,160 web resources documented, there are simply too many resources to search through by hand unless you know exactly what you want. This voids the possibility of serendipitous discovery. So, we have added a generally fuzzy search tool to help discover datasets.
 
-Say you want to find what resoruces there are for daily rainfall? `search` and `search_summary` can help:
+Say you want to find what resources there are for daily rainfall? `search` and `search_summary` can help:
 
 ```{r}
 search("daily precipitation") |> 
@@ -530,7 +530,7 @@ plot(dap)
 
 ## zonal
 
-Often getting spatial data is not the end goal and in many cases producing area based summarizations is critical.
+Often getting spatial data is not the end goal and in many cases producing area based summaries is critical.
 
 [`zonal`](https://github.com/NOAA-OWP/zonal) is a package that wraps the excellent [`exactextractr`](https://isciences.gitlab.io/exactextractr/) package with some added performance and convenience for these types of tasks. To use zonal, you must supply a raster dataset (SpatRaster), a geometry set to summarize over, and a summary functions (similar to `nwmTools::aggregate_*`). Lastly, you must provide the column with a unique identifier for each polygon object, and whether the summary data should be joined (`join  = TRUE`) to the original summary data.
 
@@ -566,9 +566,9 @@ plot(summary_data[grepl("sum", names(summary_data))], border = NA,
 
 # Section 3: Web data without a "service"
 
-Often the needed data is not delivered by a service or function. This doesnot mean we are out of luck, but rather that we have to do a little of the "heavy lifting" ourselves. This final section highlights how to read tabluar, vector and raster data from URL using the http/https and s3 protocols.
+Often the needed data is not delivered by a service or function. This does not mean we are out of luck, but rather that we have to do a little of the "heavy lifting" ourselves. This final section highlights how to read tabular, vector and raster data from URL using the http/https and s3 protocols.
 
-These approaches are advantageous when you dont want to download data locally for analysis.
+These approaches are advantageous when you don't want to download data locally for analysis.
 
 ## Access tables
 
@@ -578,7 +578,7 @@ Many CSV readers in R have the ability to read from a URL. If your desired data 
  - `readr::read_csv`
  - `data.table::fread`
 
-One example dataset in which there is not webservice client is the USACE National Inventory of Dams (NID) data. This data is stored as a CSV file.
+One example dataset in which there is not web service client is the USACE National Inventory of Dams (NID) data. This data is stored as a CSV file.
 
 ## Basic usage:
 
@@ -619,7 +619,7 @@ dap('/vsicurl/http://hydrology.cee.duke.edu/POLARIS/PROPERTIES/v1.0/vrt/alpha_me
 
 ## Transect example
 
-Here is an example where a global elevation dataset can quickly be used in conjuction with the NLDI client to plot the elevation transect of a the main river channel drainign to the USGS office in Fort Collins, CO!
+Here is an example where a global elevation dataset can quickly be used in conjunction with the NLDI client to plot the elevation transect of a the main river channel draining to the USGS office in Fort Collins, CO!
 
 ```{r}
 
@@ -644,9 +644,9 @@ ggplot(transect, aes(x = location, y = COP30_hh)) +
 ## Vector 
 
 ## Basic Usgage: TIGER lines 
-Since the base data reader of sf is GDAL the vsi capabilites also apply to vector data! The added challenge typically is that vecotor data (espesially shapefile data) is generally stored in zip files. This adds an extra layer of complexity when remotely reading these datasets. 
+Since the base data reader of sf is GDAL the vsi capabilities also apply to vector data! The added challenge typically is that vector data (especially shapefile data) is generally stored in zip files. This adds an extra layer of complexity when remotely reading these datasets. 
 
-In this example we look at the US Census Bureus FTP server for TIGER road lines. The data is stored by by 5 digit (county) FIP code in zip files. To access this data we need to identify the FIP code of interst and then chain a `vsizip` with a `vsicurl` call.
+In this example we look at the US Census Bureaus FTP server for TIGER road lines. The data is stored by by 5 digit (county) FIP code in zip files. To access this data we need to identify the FIP code of interest and then chain a `vsizip` with a `vsicurl` call.
 
 ```{r}
 AOI  = aoi_get(state = "AL", county = "Tuscaloosa")
@@ -660,7 +660,7 @@ system.time({
 mapview(roads)
 ```
 
-For those curious about the generalization of this, we can see that any GDAL backed software (here terra) can utilize the same url:
+For those curious about the generalization of this, we can see that any GDAL backed software (here terra) can utilize the same URL:
 
 ```{r}
 system.time({
@@ -672,7 +672,7 @@ plot(roads2)
 
 ## Basic Usgage: Geoconnex JSON-LD:
 
-Lastly, no IoW workshop would not be complete without highlighting the utility of the ever growing geoconnex system. This system build and maintains the infrastructure and data needed to "make water data as easily discoverable, accessible, and usable as possible."
+Lastly, no IoW workshop would not be complete without highlighting the utility of the ever growing geoconnex system. This system build and maintains the infrastructure and data needed to "make water data as easily discover-able, accessible, and usable as possible."
 
 One of the datasets that this system has minted Persistent Identifiers (PIDs) for is a collection of [USA mainstems](https://pubs.er.usgs.gov/publication/70216698). To be a "PID" a resource - in this case spatial feature - has to have a unique URI that can be resolved. This URI are store as JSON-LD, which, can be read by GDAL! So, if you can identify the geoconnex resource you want, you can read it into R and have confidence the URI will not change on you:
 
@@ -682,3 +682,6 @@ feat = read_sf('https://geoconnex.us/ref/mainstems/2238605')
 mapview(feat$geometry)
 ```
 
+# Section 4: Hands on Example
+
+See [here](https://mikejohnson51.github.io/IOW2022_R/r-dam-exercise.html)
